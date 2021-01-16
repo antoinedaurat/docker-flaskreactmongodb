@@ -51,6 +51,13 @@ services:
             - frontend
             - backend
 
+    h5serv:
+        build:
+            context: ./h5serv
+            dockerfile: Dockerfile
+        ports:
+        - "5001:5000"
+
 networks:
     frontend:
         driver: bridge
