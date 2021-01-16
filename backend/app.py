@@ -1,4 +1,3 @@
-from bson.json_util import dumps as json_dumps
 from flask import Flask
 from flask_pymongo import PyMongo
 import os
@@ -13,17 +12,10 @@ app.config["MONGO_URI"] = "mongodb://" + \
                           os.environ["MONGODB_USERNAME"] + ":" + os.environ["MONGODB_PASSWORD"] + \
                           "@" + os.environ["MONGODB_HOST"] + ":27017/webapp"
 
-mongo = PyMongo(app)
-db = mongo.db
+app.db = PyMongo(app).db
 
-
-@app.route("/hi")
-def index():
-    if not db.todos.find_one():
-        todos = db.todos
-        todos.insert_one({"name": "say hi!"})
-    todos = db.todos.find_one()
-    return json_dumps(todos)
+from .example_blueprint import bp
+app.register_blueprint(bp)
 
 
 if __name__ == "__main__":
