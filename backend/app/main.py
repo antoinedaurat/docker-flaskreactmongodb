@@ -2,10 +2,11 @@ from flask import Flask
 from flask_pymongo import PyMongo
 import os
 
+from .init_db import init_db
 from .example_blueprint import bp
 
 app = Flask(__name__)
-
+init_db()
 # to properly configure the db, we need :
 # 1. starts with the engine, here : "mongodb://"
 # 2. <user>:<password> the ones the container 'api'

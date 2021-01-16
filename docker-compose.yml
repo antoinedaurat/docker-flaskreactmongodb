@@ -19,15 +19,14 @@ services:
         image: mongo
         container_name: mongo
         restart: unless-stopped
-        command: mongod --auth --port 27017 --bind_ip 0.0.0.0
+        command: mongod --port 27017 --bind_ip 0.0.0.0
         environment:
             MONGO_INITDB_ROOT_USERNAME: "admin"
-            MONGO_INITDB_ROOT_PASSWORD: "password"
-            MONGO_INITDB_DATABASE: webapp
+            MONGO_INITDB_ROOT_PASSWORD: "admin_password"
+            MONGO_INITDB_DATABASE: "webapp"
             MONGODB_DATA_DIR: /data/db
         volumes:
         - mongodbdata:/data/db
-        - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
         networks:
         - backend
 
@@ -42,6 +41,8 @@ services:
             MONGODB_HOST: "mongo"
             MONGODB_USERNAME: "user"
             MONGODB_PASSWORD: "password"
+            MONGO_INITDB_ROOT_USERNAME: "admin"
+            MONGO_INITDB_ROOT_PASSWORD: "admin_password"
         volumes:
             - appdata:/var/www/
         depends_on: 
