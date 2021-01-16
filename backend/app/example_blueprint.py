@@ -1,7 +1,7 @@
 from bson.json_util import dumps as json_dumps
 from flask import Blueprint, current_app as app
 
-bp = Blueprint("hi", __file__)
+bp = Blueprint("hi", __name__)
 
 
 @bp.route("/hi")
