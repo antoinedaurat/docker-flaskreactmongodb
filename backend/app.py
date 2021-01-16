@@ -1,34 +1,30 @@
-import datetime
+from bson.json_util import dumps as json_dumps
+from flask import Flask
+from flask_pymongo import PyMongo
 import os
- 
-from flask import Flask, Response, request
-from flask_mongoengine import MongoEngine
 
 app = Flask(__name__)
-app.config['MONGODB_SETTINGS'] = {
-    'host': os.environ['MONGODB_HOST'],
-    'username': os.environ['MONGODB_USERNAME'],
-    'password': os.environ['MONGODB_PASSWORD'],
-    'db': 'webapp'
-}
+# to properly configure the db, we need :
+# 1. starts with the engine, here : "mongodb://"
+# 2. <user>:<password> the ones the container 'api'
+# 3. @<db-container-name> else -> unreachable!
+# 4. :<port>/<db-name>
+app.config["MONGO_URI"] = "mongodb://" + \
+                          os.environ["MONGODB_USERNAME"] + ":" + os.environ["MONGODB_PASSWORD"] + \
+                          "@" + os.environ["MONGODB_HOST"] + ":27017/webapp"
 
-db = MongoEngine()
-db.init_app(app)
+mongo = PyMongo(app)
+db = mongo.db
 
-class Todo(db.Document):
-    title = db.StringField(max_length=60)
-    text = db.StringField()
-    done = db.BooleanField(default=False)
-    pub_date = db.DateTimeField(default=datetime.datetime.now)
 
-@app.route("/api")
+@app.route("/hi")
 def index():
-    Todo.objects().delete()
-    Todo(title="Simple todo A", text="12345678910").save()
-    Todo(title="Simple todo B", text="12345678910").save()
-    Todo.objects(title__contains="B").update(set__text="Hello world")
-    todos = Todo.objects().to_json()
-    return Response(todos, mimetype="application/json", status=200)
+    if not db.todos.find_one():
+        todos = db.todos
+        todos.insert_one({"name": "say hi!"})
+    todos = db.todos.find_one()
+    return json_dumps(todos)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
